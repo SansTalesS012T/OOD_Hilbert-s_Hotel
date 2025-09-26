@@ -6,10 +6,16 @@ class Hotel:
         self.__room_list = RoomList() # create doubly linked list named room_list
 
     def add_room(self, num) -> None:
-        pass
+        if self.search_room(num): # check if that room already has a person
+            return "Full"
+        else:
+            self.__room_list.add_room(num)
+            return f"Check in {num}"
+
     
     def del_room(self, num) -> None:
         pass
     
     def search_room(self, num) -> Room:
         pass
+

@@ -16,6 +16,19 @@ class RoomList(lib.DLL):
     def __init__(self):
         super.__init__()
     
+    def add_room(self, num):   
+        room = Room(num, num)
+        temp = self.get_head()
+        room_index = 0
+        if self.is_empty():
+            self.append(room)
+            return
+        while temp.get_next() and temp.get_next().get_data() < num:
+            room_index += 1
+            temp = temp.get_next()
+        self.insert(room, room_index)
+        return
+    
     def search_by_no(self, num)-> Room | None:
         current = self.get_head()
         while current:
