@@ -7,9 +7,9 @@ class Room:
     
     def get_guest_no(self): return self.__guest_no
     
-    def same_room_no(self, room_no): return self.__room_no == room_no 
+    def is_same_room_no(self, room_no): return self.__room_no == room_no 
     
-    def same_guest_no(self, guest_no): return self.__guest_no == guest_no
+    def is_same_guest_no(self, guest_no): return self.__guest_no == guest_no
 
 import src.linked_list as lib
 class RoomList(lib.DLL):
@@ -20,7 +20,7 @@ class RoomList(lib.DLL):
         current = self.get_head()
         while current:
             room: Room = current.get_data()
-            if room.get_room_no() == num:
+            if room.is_same_room_no(num):
                return room
             current = current.get_next()
         return None
