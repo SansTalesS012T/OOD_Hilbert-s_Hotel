@@ -23,9 +23,10 @@ class RoomList(lib.DLL):
         if self.is_empty():
             self.append(room)
             return
-        while temp.get_next() and temp.get_next().get_data() < num:
-            room_index += 1
-            temp = temp.get_next()
+        while temp.get_next():  # move until get index before room to set
+            if temp.get_next().get_data().get_room_no() < num:
+                room_index += 1
+                temp = temp.get_next()
         self.insert(room, room_index)
         return
     
