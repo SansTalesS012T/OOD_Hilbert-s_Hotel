@@ -41,4 +41,15 @@ class RoomList(lib.DLL):
         
     def del_room(self, num):
         temp = self.get_head()
-        # while(temp != )
+        while(temp != None):
+            if(temp.get_data().is_same_room_no(num)):
+                prev, next = temp.get_prev(), temp.get_next()
+                if(prev == None): # head node
+                    self.pop(0)
+                elif(next == None): # tail node
+                    self.pop()
+                else: # middle node
+                    prev.set_next(next)
+                    next.set_prev(prev)
+                return
+            temp = temp.get_next()
