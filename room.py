@@ -11,3 +11,12 @@ import src.linked_list as lib
 class RoomList(lib.DLL):
     def __init__(self):
         super.__init__()
+    
+    def search_by_no(self, num)-> Room | None:
+        current = self.get_head()
+        while current:
+            room: Room = current.get_data()
+            if room.get_room_no() == num:
+               return room
+            current = current.get_next()
+        return None
