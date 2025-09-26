@@ -17,5 +17,4 @@ class Hotel:
         pass
     
     def search_room(self, num) -> Room:
-        pass
-
+        return self.__room_list.search_by_no(num)
