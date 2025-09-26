@@ -4,7 +4,11 @@ class DLL: # doubly linked list
     def __init__(self):
         self.__head = self.__tail = None
         self.__size = 0
-        
+    
+    def get_head(self): return self.__head
+
+    def get_tail(self): return self.__tail
+
     def size(self): return self.__size
     
     def is_empty(self): return self.__size == 0
