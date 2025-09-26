@@ -14,7 +14,7 @@ class Hotel:
 
     
     def del_room(self, num) -> None:
-        pass
+        return self.__room_list.del_room(num)
     
     def search_room(self, num) -> Room:
         return self.__room_list.search_by_no(num)
