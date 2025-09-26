@@ -69,4 +69,3 @@ class DLL: # doubly linked list
     def clear(self):
         self.__head = self.__tail = None
         self.__size = 0
-    

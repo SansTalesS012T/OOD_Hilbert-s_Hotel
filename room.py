@@ -6,3 +6,8 @@ class Room:
     def get_room_no(self): return self.__room_no
     
     def get_guest_no(self): return self.__guest_no
+
+import src.linked_list as lib
+class RoomList(lib.DLL):
+    def __init__(self):
+        super.__init__()
