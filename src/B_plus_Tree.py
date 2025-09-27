@@ -1,3 +1,5 @@
+import math
+
 #======================================================================
 class BPTreeNode:
     def __init__(self, order):
@@ -34,6 +36,9 @@ class BPTreeNode:
     def insert_key_at(self, index, key):
         self.__keys.insert(index, key)
 
+    def set_key_at(self, i, key):
+        self.__keys[i] = key
+
     def remove_key_at(self, index):
         return self.__keys.pop(index)
 
@@ -58,9 +63,6 @@ class BPTreeNode:
     # Utils
     def is_leaf(self) -> bool:
         return False  # overridden in Leaf subclass
-    
-    def get_size(self) -> int:
-        return len(self.__keys)
 
     def is_empty(self) -> bool:
         return len(self.__keys) == 0
@@ -162,12 +164,12 @@ class BPTree:
 
         parent = node.get_parent()
         # Find index to insert key
-        idx = 0
-        while idx < parent.get_keys_size() and key > parent.get_key_at(idx):
-            idx += 1
+        indx = 0
+        while indx < parent.get_keys_size() and key > parent.get_key_at(indx):
+            indx += 1
 
-        parent.insert_key_at(idx, key)
-        parent.insert_child_at(idx + 1, new_node)
+        parent.insert_key_at(indx, key)
+        parent.insert_child_at(indx + 1, new_node)
         new_node.set_parent(parent)
 
         # If parent overflow, split recursively
@@ -194,27 +196,182 @@ class BPTree:
         self.__insert_in_parent(node, promote_key, new_node)
 
 
-    #Deletion
+    #Deletion (Excecute -> Borrow(if possible), Merge)
     def delete(self, key):
         leaf = self.__find_leaf(key)
-        
+
         try:
-            idx = leaf.get_keys().index(key)
+            indx = leaf.get_keys().index(key)
         except ValueError:
             return # Key not found
 
         # Remove key and Values
-        leaf.remove_key_at(idx)
-        leaf.remove_child_at(idx)
+        leaf.remove_key_at(indx)
+        leaf.remove_child_at(indx)
+
+        # print("\n======Debugger======")
+        # self.display_tree_ascii()
+        # print("====================\n")
 
         # Underflow - size go lower than min
-        if leaf != self.__root and leaf.get_keys_size() < (self.__order + 1)//2:
+        if leaf != self.__root and leaf.get_keys_size() < math.ceil((self.__order - 1)/2):
+            # print("\n======Debugger======")
+            # print("Under Flow") 
+            # print("====================\n")
             self.__rebalance(leaf)
+        else:
+            self.__update_parent_keys(leaf)
+
+    def __update_parent_keys(self, node: BPTreeNode):
+        parent = node.get_parent()
+        if not parent:  
+            return
+
+        children = parent.get_children()
+        for i in range(parent.get_keys_size()):
+            # Update each key to the first key of the right child
+            parent.set_key_at(i, children[i + 1].get_key_at(0))
+
 
 
     def __rebalance(self, node: BPTreeNode):
-        pass
+        parent = node.get_parent()
+        # print("\n======Debugger======")
+        # print(parent.get_keys()) 
+        # print("====================\n")       
+        if not parent:                                                      # Root case
+            if not node.is_leaf() and node.get_keys_size() == 0:            # Root internal node with one child -> promote that child
+                self.__root = node.get_child_at(0)
+                self.__root.set_parent(None)
+            return
 
+        children = parent.get_children()
+        indx = children.index(node)
+
+        # print("\n======Debugger======")
+        # print(children[0].get_keys()) 
+        # print("====================\n")   
+
+        left_sibling:  BPTreeNode  = children[indx - 1] if indx > 0 else None
+        right_sibling: BPTreeNode = children[indx + 1] if (indx + 1) < len(children) else None
+
+        min_keys = math.ceil((self.__order - 1)/2)  #min rule
+
+        # Borrow from left sibling
+        if left_sibling and left_sibling.get_keys_size() > min_keys:
+            # print("\n======Debugger======")
+            # print(node.get_keys()) 
+            # print("====================\n")   
+
+            if node.is_leaf():
+                # Move last key/value from left leaf to front of node
+                last_i = left_sibling.get_keys_size() - 1
+                key = left_sibling.get_key_at(last_i)
+                value = left_sibling.get_child_at(last_i)
+                left_sibling.remove_key_at(last_i)
+                left_sibling.remove_child_at(last_i)
+
+                node.insert_key_at(0, key)
+                node.insert_child_at(0, value)
+
+                parent.set_key_at(indx - 1, node.get_key_at(0)) # Update parent separator to the new first key of node
+            else:
+                # Internal node borrowing:
+                # Move parent's separator down into node, move left_sibling's last key up into parent,
+                # and move left_sibling's last child to be node's first child.
+                borrow_key_indx = left_sibling.get_keys_size() - 1
+                borrow_key = left_sibling.get_key_at(borrow_key_indx)
+                # left_sibling's last child index = left_sibling.get_keys_size()
+                borrow_child = left_sibling.get_child_at(left_sibling.get_keys_size())
+
+                left_sibling.remove_key_at(borrow_key_indx)
+                left_sibling.remove_child_at(left_sibling.get_keys_size())
+
+                # parent separator goes down into node at front
+                node.insert_key_at(0, parent.get_key_at(indx - 1))
+                node.insert_child_at(0, borrow_child)
+                borrow_child.set_parent(node)
+
+                # replace parent's separator with borrow_key
+                parent.set_key_at(indx - 1, borrow_key)
+            return
+
+        # Borrow from right sibling
+        if right_sibling and right_sibling.get_keys_size() > min_keys:
+
+            # print("\n======Debugger======")
+            # print(node.get_keys()) 
+            # print("====================\n")   
+
+
+            if node.is_leaf():
+                # Move first key/value from right sibling to end of node
+                key = right_sibling.get_key_at(0)
+                value = right_sibling.get_child_at(0)
+                right_sibling.remove_key_at(0)
+                right_sibling.remove_child_at(0)
+
+                node.append_key(key)
+                node.append_child(value)
+
+                parent.set_key_at(indx, right_sibling.get_key_at(0))  # Update parent separator  equal right_sibling's new first key
+            else:
+                # Internal node borrowing from right sibling:
+                borrow_key = right_sibling.get_key_at(0)
+                borrow_child : BPTreeNode = right_sibling.get_child_at(0)
+
+                right_sibling.remove_key_at(0)
+                right_sibling.remove_child_at(0)
+
+                # parent's separator goes down into node as new last key
+                node.append_key(parent.get_key_at(indx))
+                node.append_child(borrow_child)
+                borrow_child.set_parent(node)
+
+                # replace parent's separator with borrow_key
+                parent.set_key_at(indx, borrow_key)
+            return
+
+        #Merge with sibling if borrowing not possible
+        if left_sibling:
+            self.__merge_nodes(left_sibling, node, parent, indx - 1) # merge left_sibling (left) with node (right) separator index = indx - 1
+        elif right_sibling:            
+            self.__merge_nodes(node, right_sibling, parent, indx) # merge node (left) with right_sibling (right); separator index = indx
+ 
+
+    def __merge_nodes(self, left_node : BPTreeNode, right_node : BPTreeNode, parrent_node : BPTreeNode, sep_indx):
+        if left_node.is_leaf():
+            for i in range(right_node.get_keys_size()):
+                left_node.append_key(right_node.get_key_at(i))
+                left_node.append_child(right_node.get_child_at(i))
+
+            # Fix leaf chain
+            left_node.set_next(right_node.get_next())
+            
+        else:# Internal node merge:
+            sep_key = parrent_node.get_key_at(sep_indx)         # Bring down separator key from parent into left
+            left_node.append_key(sep_key)
+
+            # Append all keys and children from right into left
+            for i in range(right_node.get_keys_size()):
+                left_node.append_key(right_node.get_key_at(i))\
+
+            for child in right_node.get_children():
+                left_node.append_child(child)
+                child.set_parent(left_node)
+
+        #Remove Reference from parrent after merge
+        parrent_node.remove_key_at(sep_indx)
+        parrent_node.remove_child_at(sep_indx + 1)
+
+
+        # If parent underflows, recurse rebalance
+        if parrent_node.is_root() and parrent_node.is_empty():
+            # Parent is root and became empty → promote left as new root
+            self.__root = left_node
+            left_node.set_parent(None)
+        elif not parrent_node.is_root() and parrent_node.get_keys_size() < math.ceil((self.__order - 1)/2):
+            self.__rebalance(parrent_node)
 
     # Search
     def search(self, key):
