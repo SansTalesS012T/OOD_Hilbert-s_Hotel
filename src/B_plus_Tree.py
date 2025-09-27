@@ -47,6 +47,9 @@ class BPTreeNode:
 
     def get_child_at(self, i):
         return self.__children[i]
+    
+    def get_children_size(self):
+        return len(self.__children)
 
     def set_children(self, children: list):
         self.__children = list(children)
@@ -72,6 +75,48 @@ class BPTreeNode:
 
     def is_root(self) -> bool:
         return self.__parent is None
+    
+    # Compare key mode
+    
+    def compare_key_at_mode(self, key, index, mode):
+        match (mode):
+            case 0:
+                return key < self.__keys[index]
+            case 1:
+                return key <= self.__keys[index]
+            case 2:
+                return key == self.__keys[index]
+            case 3:
+                return key >= self.__keys[index]
+            case 4:
+                return key > self.__keys[index]
+            
+    def compare_key_size_at_mode(self, size, mode):
+        match (mode):
+            case 0:
+                return size < self.get_keys_size()
+            case 1:
+                return size <= self.get_keys_size()
+            case 2:
+                return size == self.get_keys_size()
+            case 3:
+                return size >= self.get_keys_size()
+            case 4:
+                return size > self.get_keys_size()
+            
+    def get_key_size_with_ratio(self, ratio, mode = 0):
+        match(mode):
+            case 0:
+                return self.get_keys_size() * ratio 
+            case 1:
+                return math.floor(self.get_keys_size() * ratio)
+            case 2:
+                return math.ceil(self.get_keys_size() * ratio)
+            case 3:
+                return round(self.get_keys_size() * ratio)
+            
+    def is_underflow(self):
+        return self.get_keys_size() < math.ceil((self.__order - 1) / 2)
 
 #======================================================================
 class BPTreeInternalNode(BPTreeNode):
@@ -117,7 +162,7 @@ class BPTree:
         node = self.__root
         while not node.is_leaf():
             i = 0
-            while i < node.get_keys_size() and key >= node.get_key_at(i):
+            while node.compare_key_size_at_mode(i, 0) and node.compare_key_at_mode(key, i, 3):
                 i += 1
             node = node.get_child_at(i)
         return node
@@ -125,14 +170,15 @@ class BPTree:
     # Insert key/value in leaf node
     def __insert_in_leaf(self, leaf: BPTreeLeafNode, key, value):
         i = 0
-        while i < leaf.get_keys_size() and key > leaf.get_key_at(i):
+        while leaf.compare_key_size_at_mode(i, 0) and leaf.compare_key_at_mode(key, i, 4):
             i += 1
         leaf.insert_key_at(i, key)
         leaf.insert_child_at(i, value)
 
     def __split_leaf(self, leaf: BPTreeLeafNode):
         order = leaf.get_order()
-        mid = leaf.get_keys_size()//2
+        # mid = leaf.get_keys_size()//2
+        mid = leaf.get_key_size_with_ratio(0.5, 1)
 
         # Create new right leaf
         new_leaf = BPTreeLeafNode(order)
@@ -162,10 +208,11 @@ class BPTree:
             self.__root = new_root
             return
 
-        parent = node.get_parent()
-        # Find index to insert key
+        parent: BPTreeNode = node.get_parent() 
+        # Find index to insert key  
         indx = 0
-        while indx < parent.get_keys_size() and key > parent.get_key_at(indx):
+        # compare (indx < parent key size) and (key > parent key[indx])
+        while parent.compare_key_size_at_mode(indx, 0) and parent.compare_key_at_mode(key, indx, 4):
             indx += 1
 
         parent.insert_key_at(indx, key)
@@ -178,8 +225,9 @@ class BPTree:
 
     # Split an internal node
     def __split_internal(self, node: BPTreeInternalNode):
-        order = node.get_order()
-        mid = len(node.get_keys()) // 2
+        order       = node.get_order()
+        # mid = len(node.get_keys()) // 2
+        mid         = node.get_key_size_with_ratio(0.5, 1)
         promote_key = node.get_key_at(mid)
 
         # Create new internal node
@@ -214,7 +262,7 @@ class BPTree:
         # print("====================\n")
 
         # Underflow - size go lower than min
-        if leaf != self.__root and leaf.get_keys_size() < math.ceil((self.__order - 1)/2):
+        if leaf != self.__root and leaf.is_underflow():
             # print("\n======Debugger======")
             # print("Under Flow") 
             # print("====================\n")
@@ -224,7 +272,7 @@ class BPTree:
 
     def __update_parent_keys(self, node: BPTreeNode):
         parent = node.get_parent()
-        if not parent:  
+        if not parent:
             return
 
         children = parent.get_children()
@@ -240,7 +288,7 @@ class BPTree:
         # print(parent.get_keys()) 
         # print("====================\n")       
         if not parent:                                                      # Root case
-            if not node.is_leaf() and node.get_keys_size() == 0:            # Root internal node with one child -> promote that child
+            if not node.is_leaf() and node.is_empty():            # Root internal node with one child -> promote that child
                 self.__root = node.get_child_at(0)
                 self.__root.set_parent(None)
             return
@@ -253,12 +301,12 @@ class BPTree:
         # print("====================\n")   
 
         left_sibling:  BPTreeNode  = children[indx - 1] if indx > 0 else None
-        right_sibling: BPTreeNode = children[indx + 1] if (indx + 1) < len(children) else None
+        right_sibling: BPTreeNode = children[indx + 1] if (indx + 1) < parent.get_children_size() else None
 
         min_keys = math.ceil((self.__order - 1)/2)  #min rule
 
         # Borrow from left sibling
-        if left_sibling and left_sibling.get_keys_size() > min_keys:
+        if left_sibling and left_sibling.compare_key_size_at_mode(min_keys, 0):
             # print("\n======Debugger======")
             # print(node.get_keys()) 
             # print("====================\n")   
@@ -297,7 +345,7 @@ class BPTree:
             return
 
         # Borrow from right sibling
-        if right_sibling and right_sibling.get_keys_size() > min_keys:
+        if right_sibling and right_sibling.compare_key_size_at_mode(min_keys, 0):
 
             # print("\n======Debugger======")
             # print(node.get_keys()) 
