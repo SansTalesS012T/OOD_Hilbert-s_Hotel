@@ -150,6 +150,62 @@ class BPTree:
     def get_root(self):
         return self.__root
 
+    # Bulk Loading
+    def bulk_load(self, data: list):
+        if not data:
+            self.__root = BPTreeLeafNode(self.__order)
+            return
+
+        #1. Data must be sorted
+        data.sort(key=lambda x: x[0])                   # Sorted by key
+
+        #2. Create Leaf node level
+        leaves = []
+        current_leaf = BPTreeLeafNode(self.__order)
+        leaves.append(current_leaf)
+
+        for key, value in data:
+            if current_leaf.is_full():
+                # Create and link a new leaf when the current one is full
+                new_leaf = BPTreeLeafNode(self.__order)
+                current_leaf.set_next(new_leaf)
+                current_leaf = new_leaf
+                leaves.append(current_leaf)
+            
+            current_leaf.append_key(key)
+            current_leaf.append_child(value)
+        
+        #3. Recursively build the parent levels until a single root is formed
+        current_level = leaves
+        while len(current_level) > 1:
+            parents = []
+            new_parent = BPTreeInternalNode(self.__order)
+            parents.append(new_parent)
+
+            # Iterate through the nodes of the current level to create the level above
+            for node in current_level:
+                if new_parent.is_full():
+                    # Create a new parent if the current one is full
+                    new_parent = BPTreeInternalNode(self.__order)
+                    parents.append(new_parent)
+                
+                if new_parent.is_empty():
+                    # The first child is just added
+                    new_parent.append_child(node)
+                    node.set_parent(new_parent)
+                else:
+                    # Subsequent children have their first key promoted to the parent
+                    promote_key = node.get_key_at(0)
+                    new_parent.append_key(promote_key)
+                    new_parent.append_child(node)
+                    node.set_parent(new_parent)
+            
+            current_level = parents
+        
+        # 4. Set the root of the tree
+        self.__root = current_level[0]
+        self.__root.set_parent(None)
+
     # Insert
     def insert(self, key, value):
         leaf = self.__find_leaf(key)
