@@ -524,3 +524,23 @@ class BPTree:
             print("[" + ",".join(map(str, node.get_keys())) + "] -> ", end="")
             node = node.get_next()
         print("None")
+
+
+    # method to retrieve all values from the tree
+    def get_all_values(self) -> list:
+        all_values = []
+        if not self.__root:
+            return all_values
+
+        # 1. Find the first leaf
+        node = self.__root
+        while not node.is_leaf():
+            node = node.get_child_at(0)
+
+        # 2. Traverse all leaf nodes using the 'next' pointer
+        while node:
+            # Add all children (the Room objects) from the current leaf
+            all_values.extend(node.get_children())
+            node = node.get_next()
+            
+        return all_values
