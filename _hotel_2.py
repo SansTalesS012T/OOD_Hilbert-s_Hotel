@@ -7,7 +7,6 @@ class Hotel:
         self.__primes_cache = [2, 3, 5, 7, 11, 13] # Cache for commonly used primes
         print("Empty hotel shell created. Ready to be loaded.")
 
-    # --- Prime Number Helper Methods ---
     def _is_prime(self, n):
         if n <= 1: return False
         if n <= 3: return True

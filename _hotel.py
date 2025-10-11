@@ -24,6 +24,7 @@ class Hotel:
             return self.__primes_cache[n - 1]
 
         import math
+        #predict upper bound
         estimate = int(n * (math.log(n) + math.log(math.log(n)))) + 10
         while True:
             primes = self._generate_primes_up_to(estimate)
