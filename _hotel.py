@@ -135,7 +135,19 @@ class Hotel:
         self.__room_list.bulk_load_rooms(all_guests_final)
         print(f"SUCCESS: All {len(all_guests_final)} guests are now accommodated.")
 
+    def guest_exists(self, guest_no: int) -> bool:
+        """Check if a guest ID already exists in the hotel."""
+        for room in self.__room_list.get_all_rooms():
+            if room.get_guest_no() == guest_no:
+                return True
+        return False
+
     def manual_add_room(self, room_no_to_add: int, guest_no: int, channel="Manual Add"):
+        
+        if self.guest_exists(guest_no):
+            print(f"FAILED: Guest ID #{guest_no} already exists in the hotel.")
+            return
+        
         all_guests = self.__room_list.get_all_rooms()
         if not 1 <= room_no_to_add <= len(all_guests) + 1:
             print(f"FAILED: Room number must be between 1 and {len(all_guests) + 1}.")

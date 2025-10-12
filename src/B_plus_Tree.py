@@ -179,28 +179,25 @@ class BPTree:
         current_level = leaves
         while len(current_level) > 1:
             parents = []
-            new_parent = BPTreeInternalNode(self.__order)
-            parents.append(new_parent)
+            i = 0
+            while i < len(current_level):
+                parent = BPTreeInternalNode(self.__order)
+                end = min(i + self.__order, len(current_level))
+                children_group = current_level[i:end]
 
-            # Iterate through the nodes of the current level to create the level above
-            for node in current_level:
-                if new_parent.is_full():
-                    # Create a new parent if the current one is full
-                    new_parent = BPTreeInternalNode(self.__order)
-                    parents.append(new_parent)
-                
-                if new_parent.is_empty():
-                    # The first child is just added
-                    new_parent.append_child(node)
-                    node.set_parent(new_parent)
-                else:
-                    # Subsequent children have their first key promoted to the parent
-                    promote_key = node.get_key_at(0)
-                    new_parent.append_key(promote_key)
-                    new_parent.append_child(node)
-                    node.set_parent(new_parent)
-            
+                parent.set_children(children_group)
+                for child in children_group:
+                    child.set_parent(parent)
+
+                # Promote separator keys: first key of each child except the first
+                parent_keys = [child.get_key_at(0) for child in children_group[1:]]
+                parent.set_keys(parent_keys)
+
+                parents.append(parent)
+                i = end
+
             current_level = parents
+
         
         # 4. Set the root of the tree
         self.__root = current_level[0]
@@ -480,6 +477,7 @@ class BPTree:
     # Search
     def search(self, key):
         leaf = self.__find_leaf(key)
+        self.display_tree_ascii()
         for i, k in enumerate(leaf.get_keys()):
             if k == key:
                 return leaf.get_child_at(i)
