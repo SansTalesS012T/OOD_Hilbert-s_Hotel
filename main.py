@@ -17,20 +17,29 @@ def main():
     
     # Updated menu options
     options = [
-        "Initialize Hotels",
+        "Hotel Setup and Room Management",
         "Check in ",
-        "Manually Add a Room",
-        "Manually Delete a Room",
-        "Search for a Guest by Room Number",
-        "Display All Occupied Rooms",
+        "Search for a Guest and Display Rooms",
         "Export Room List to a File",
         "Display Current Memory Usage",
         "Quit"
     ]
+
+    Hotel_Setup_and_Room_Managements = [
+        "Initialize Hotel",
+        "Manually Add a Room",
+        "Manually Delete a Room"
+
+    ]
     check_ins = [
-        "--- Check-in Finite Group ---",
-        "--- Check-in ONE Infinite Bus ---",
-        "--- Check-in Infinite Buses of Infinite Guests (Simulation) ---"
+        "Check-in Finite Group",
+        "Check-in ONE Infinite Bus",
+        "Check-in Infinite Buses of Infinite Guests (Simulation)"
+    ]
+    
+    Search_for_a_Guest_and_Display_Rooms = [
+        "Search for a Guest",
+        "Display All Occupied Rooms"
     ]
     
 
@@ -65,20 +74,59 @@ $$ |  $$ |$$ |$$ |$$$$$$$  |\$$$$$$$\ $$ |       \$$$$  |$$$$$$$  |      $$ |  $
         
         match choice:
             case 1:
-                print("--- Initialize Hotel ---")
-                try:
-                    num_channels = int(input("How many arrival channels? "))
-                    channels, channel_names = [], []
-                    for i in range(num_channels):
-                        name = input(f"Enter name for channel {i+1}: ")
-                        count = int(input(f"Enter number of guests for '{name}': "))
-                        channel_names.append(name)
-                        channels.append(count)
-                    start_time = time.perf_counter()
-                    hotel.bulk_load_from_channels(channels, channel_names)
-                    end_time = time.perf_counter()
-                except ValueError:
-                    print("Invalid input. Please enter a number for guest counts.")
+                print("--- Hotel_Setup_and_Room_Management ---")
+                for i, Hotel_Setup_and_Room_Management in enumerate(Hotel_Setup_and_Room_Managements):
+                    print(f"{i + 1}. {Hotel_Setup_and_Room_Management}")
+
+                Hotel_Setup_and_Room_Management_choice = input("Please select option: ").strip()
+
+                if not Hotel_Setup_and_Room_Management_choice.isdigit() or not 1 <= int(Hotel_Setup_and_Room_Management_choice) <= len(Hotel_Setup_and_Room_Managements):
+                    print("Invalid choice, please enter a number from the list.")
+                    input("Press Enter to continue...")
+                    clear_screen()
+                    continue
+
+                Hotel_Setup_and_Room_Management_choice = int(Hotel_Setup_and_Room_Management_choice)
+                clear_screen()
+            
+
+                match Hotel_Setup_and_Room_Management_choice:
+                    case 1:
+                        print("--- Initialize Hotel ---")
+                        try:
+                            num_channels = int(input("How many arrival channels? "))
+                            channels, channel_names = [], []
+                            for i in range(num_channels):
+                                name = input(f"Enter name for channel {i+1}: ")
+                                count = int(input(f"Enter number of guests for '{name}': "))
+                                channel_names.append(name)
+                                channels.append(count)
+                            start_time = time.perf_counter()
+                            hotel.bulk_load_from_channels(channels, channel_names)
+                            end_time = time.perf_counter()
+                        except ValueError:
+                            print("Invalid input. Please enter a number for guest counts.")
+
+                    case 2:
+                        print("--- Manually Add a Room ---")
+                        try:
+                            room_no = int(input("Enter room number to add at: "))
+                            guest_no = int(input("Enter a unique ID for the new guest: "))
+                            start_time = time.perf_counter()
+                            hotel.manual_add_room(room_no, guest_no)
+                            end_time = time.perf_counter()
+                        except ValueError:
+                            print("Invalid input. Please enter numbers.")
+
+                    case 3:
+                        print("--- Manually Delete a Room ---")
+                        try:
+                            room_no = int(input("Enter room number to delete: "))
+                            start_time = time.perf_counter()
+                            hotel.manual_delete_room(room_no)
+                            end_time = time.perf_counter()
+                        except ValueError:
+                            print("Invalid input. Please enter a number.")
             case 2:
                 print("--- Check-in Options ---")
                 for i, check_in_option in enumerate(check_ins):
@@ -131,54 +179,53 @@ $$ |  $$ |$$ |$$ |$$$$$$$  |\$$$$$$$\ $$ |       \$$$$  |$$$$$$$  |      $$ |  $
                             print("Invalid input. Please enter numbers for the simulation counts.")
 
             case 3:
-                print("--- Manually Add a Room ---")
-                try:
-                    room_no = int(input("Enter room number to add at: "))
-                    guest_no = int(input("Enter a unique ID for the new guest: "))
-                    start_time = time.perf_counter()
-                    hotel.manual_add_room(room_no, guest_no)
-                    end_time = time.perf_counter()
-                except ValueError:
-                    print("Invalid input. Please enter numbers.")
+                print("--- Search_for_a_Guest_and_Display_Room ---")
+                for i, Search_for_a_Guest_and_Display_Room in enumerate(Search_for_a_Guest_and_Display_Rooms):
+                    print(f"{i + 1}. {Search_for_a_Guest_and_Display_Room}")
+
+                Search_for_a_Guest_and_Display_Room_choice = input("Please select option: ").strip()
+
+                if not Search_for_a_Guest_and_Display_Room_choice.isdigit() or not 1 <= int(Search_for_a_Guest_and_Display_Room_choice) <= len(Search_for_a_Guest_and_Display_Rooms):
+                    print("Invalid choice, please enter a number from the list.")
+                    input("Press Enter to continue...")
+                    clear_screen()
+                    continue
+
+                Search_for_a_Guest_and_Display_Room_choice = int(Search_for_a_Guest_and_Display_Room_choice)
+                clear_screen()
+            
+
+                match Search_for_a_Guest_and_Display_Room_choice:
+                    case 1:
+                        print("--- Search for a Guest ---")
+                        try:
+                            room_no = int(input("Enter room number to search for: "))
+                            start_time = time.perf_counter()
+                            guest = hotel.find_guest(room_no)
+                            end_time = time.perf_counter()
+                            if guest:
+                                print(f"Found: {guest}")
+                            else:
+                                print(f"Room #{room_no} is empty.")
+                        except ValueError:
+                            print("Invalid input. Please enter a number.")
+
+                    case 2:
+                        print("--- All Occupied Rooms (Sorted) ---")
+                        start_time = time.perf_counter()
+                        hotel.display_as_table()
+                        end_time = time.perf_counter()
+
+                    
 
             case 4:
-                print("--- Manually Delete a Room ---")
-                try:
-                    room_no = int(input("Enter room number to delete: "))
-                    start_time = time.perf_counter()
-                    hotel.manual_delete_room(room_no)
-                    end_time = time.perf_counter()
-                except ValueError:
-                    print("Invalid input. Please enter a number.")
-            
-            case 5:
-                print("--- Search for a Guest ---")
-                try:
-                    room_no = int(input("Enter room number to search for: "))
-                    start_time = time.perf_counter()
-                    guest = hotel.find_guest(room_no)
-                    end_time = time.perf_counter()
-                    if guest:
-                        print(f"Found: {guest}")
-                    else:
-                        print(f"Room #{room_no} is empty.")
-                except ValueError:
-                    print("Invalid input. Please enter a number.")
-
-            case 6:
-                print("--- All Occupied Rooms (Sorted) ---")
-                start_time = time.perf_counter()
-                hotel.display_as_table()
-                end_time = time.perf_counter()
-
-            case 7:
                 print("--- Export to File ---")
                 filename = input("Enter filename to save as (e.g., hotel_export.csv): ")
                 start_time = time.perf_counter()
                 hotel.export_to_file(filename)
                 end_time = time.perf_counter()
-
-            case 8:
+            
+            case 5:
                 print("--- Memory Usage ---")
                 start_time = time.perf_counter()
                 memory = get_process_memory()
@@ -188,7 +235,7 @@ $$ |  $$ |$$ |$$ |$$$$$$$  |\$$$$$$$\ $$ |       \$$$$  |$$$$$$$  |      $$ |  $
                 else:
                     print(f"Could not retrieve memory usage: {memory}")
 
-            case 9:
+            case 6:
                 print("Exiting program.")
                 return
 
