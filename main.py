@@ -240,8 +240,15 @@ $$ |  $$ |$$ |$$ |$$$$$$$  |\$$$$$$$\ $$ |       \$$$$  |$$$$$$$  |      $$ |  $
                 start_time = time.perf_counter()
                 memory = get_process_memory()
                 end_time = time.perf_counter()
+                
                 if isinstance(memory, int):
-                    print(f"Current memory usage: {memory:,} bytes")
+                    pref = {"GB": 10**9, "MB": 10**6, "KB": 10**3, "B": 1}
+                    show = [None, None]
+                    for i, j in pref.items():
+                        if(memory / j >= 1):
+                            show[0], show[1] = memory / j, i
+                            break
+                    print(f"Current memory usage: {show[0]:,.3f} {show[1]}")
                 else:
                     print(f"Could not retrieve memory usage: {memory}")
 
