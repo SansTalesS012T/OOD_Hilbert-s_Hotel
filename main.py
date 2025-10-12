@@ -28,18 +28,21 @@ def main():
     Hotel_Setup_and_Room_Managements = [
         "Initialize Hotel",
         "Manually Add a Room",
-        "Manually Delete a Room"
+        "Manually Delete a Room",
+        "Quit"
 
     ]
     check_ins = [
         "Check-in Finite Group",
         "Check-in ONE Infinite Bus",
-        "Check-in Infinite Buses of Infinite Guests (Simulation)"
+        "Check-in Infinite Buses of Infinite Guests (Simulation)",
+        "Quit"
     ]
     
     Search_for_a_Guest_and_Display_Rooms = [
         "Search for a Guest",
-        "Display All Occupied Rooms"
+        "Display All Occupied Rooms",
+        "Quit"
     ]
     
 
@@ -127,6 +130,9 @@ $$ |  $$ |$$ |$$ |$$$$$$$  |\$$$$$$$\ $$ |       \$$$$  |$$$$$$$  |      $$ |  $
                             end_time = time.perf_counter()
                         except ValueError:
                             print("Invalid input. Please enter a number.")
+                    case 4:
+                        print("Exiting program.")
+                        continue
             case 2:
                 print("--- Check-in Options ---")
                 for i, check_in_option in enumerate(check_ins):
@@ -142,7 +148,6 @@ $$ |  $$ |$$ |$$ |$$$$$$$  |\$$$$$$$\ $$ |       \$$$$  |$$$$$$$  |      $$ |  $
 
                 check_in_choice = int(check_in_choice)
                 clear_screen()
-            
 
                 match check_in_choice:
                     case 1:
@@ -177,6 +182,9 @@ $$ |  $$ |$$ |$$ |$$$$$$$  |\$$$$$$$\ $$ |       \$$$$  |$$$$$$$  |      $$ |  $
                             end_time = time.perf_counter()
                         except ValueError:
                             print("Invalid input. Please enter numbers for the simulation counts.")
+                    case 4:
+                        print("Exiting program.")
+                        continue
 
             case 3:
                 print("--- Search_for_a_Guest_and_Display_Room ---")
@@ -215,8 +223,10 @@ $$ |  $$ |$$ |$$ |$$$$$$$  |\$$$$$$$\ $$ |       \$$$$  |$$$$$$$  |      $$ |  $
                         start_time = time.perf_counter()
                         hotel.display_as_table()
                         end_time = time.perf_counter()
+                    case 3:
+                        print("Exiting program.")
+                        continue
 
-                    
 
             case 4:
                 print("--- Export to File ---")
