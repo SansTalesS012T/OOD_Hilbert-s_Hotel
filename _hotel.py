@@ -1,5 +1,4 @@
 from room import Room, RoomList
-import csv
 import os
 
 class Hotel:
@@ -203,16 +202,25 @@ class Hotel:
             filename += ".csv"
 
         try:
-            with open(filename, mode='w', newline='', encoding='utf-8') as file:
-                writer = csv.writer(file)
-                writer.writerow(["Room No", "Guest ID", "Arrival Channel"])
-                
-                for room in all_rooms:
-                    writer.writerow([
+            data = [["Room No", "Guest ID", "Arrival Channel"]]
+            for room in all_rooms:
+                data.append([
                         str(room.get_room_no()),
                         str(room.get_guest_no()),
                         str(room.get_arrival_channel())
                     ])
+                
+            column_widths = [max(len(str(item)) for item in col) for col in zip(*data)]
+            spacing = 4
+
+            with open(filename, mode='w', newline='', encoding='utf-8') as file:
+                for row in data:
+                    formatted_row = []
+                    for i, item in enumerate(row):
+                        # Pad each item to its respective column width, then add spacing
+                        formatted_row.append(str(item).ljust(column_widths[i]))
+                    # Join the formatted items with the desired spacing
+                    file.write((" " * spacing).join(formatted_row) + "\n")
 
             abs_path = os.path.abspath(filename)
             print(f" Export successful! File saved as: {abs_path}")
