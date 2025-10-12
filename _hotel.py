@@ -1,4 +1,6 @@
 from room import Room, RoomList
+import csv
+import os
 
 class Hotel:
     def __init__(self, order=16):
@@ -187,3 +189,33 @@ class Hotel:
         print(separator)
         print(f"Total Occupied Rooms: {len(all_rooms)}")
         print("------------------------------")
+
+        
+    def export_to_file(self, filename: str):
+    
+        all_rooms = self.__room_list.get_all_rooms()
+        
+        if not all_rooms:
+            print("No data to export. The hotel is empty.")
+            return
+        
+        if not filename.lower().endswith(".csv"):
+            filename += ".csv"
+
+        try:
+            with open(filename, mode='w', newline='', encoding='utf-8') as file:
+                writer = csv.writer(file)
+                writer.writerow(["Room No", "Guest ID", "Arrival Channel"])
+                
+                for room in all_rooms:
+                    writer.writerow([
+                        str(room.get_room_no()),
+                        str(room.get_guest_no()),
+                        str(room.get_arrival_channel())
+                    ])
+
+            abs_path = os.path.abspath(filename)
+            print(f" Export successful! File saved as: {abs_path}")
+        
+        except Exception as e:
+            print(f" Error exporting file: {e}")
