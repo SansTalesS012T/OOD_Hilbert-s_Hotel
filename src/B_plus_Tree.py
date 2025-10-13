@@ -183,6 +183,10 @@ class BPTree:
             while i < len(current_level):
                 parent = BPTreeInternalNode(self.__order)
                 end = min(i + self.__order, len(current_level))
+                
+                if len(current_level) - end == 1:
+                    end += 1
+                
                 children_group = current_level[i:end]
 
                 parent.set_children(children_group)
@@ -477,7 +481,7 @@ class BPTree:
     # Search
     def search(self, key):
         leaf = self.__find_leaf(key)
-        self.display_tree_ascii()
+        # self.display_tree_ascii()
         for i, k in enumerate(leaf.get_keys()):
             if k == key:
                 return leaf.get_child_at(i)
