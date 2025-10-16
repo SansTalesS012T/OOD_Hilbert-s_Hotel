@@ -34,6 +34,9 @@ class Hotel:
                 return primes[n - 1]
             estimate *= 2  # expand range if not enough primes
 
+    def rearrange(self):
+        for index, room in enumerate(self.__room_list.get_all_rooms()):
+            room.set_room_no(index + 1)
 
     def bulk_load_from_channels(self, channels: list, channel_names: list):
         if len(channels) != len(channel_names):
@@ -149,15 +152,17 @@ class Hotel:
             return
         
         all_guests = self.__room_list.get_all_rooms()
-        if not 1 <= room_no_to_add <= len(all_guests) + 1:
-            print(f"FAILED: Room number must be between 1 and {len(all_guests) + 1}.")
-            return
-        new_room = Room(room_no=0, guest_no=guest_no, arrival_channel=channel)
+        # if not 1 <= room_no_to_add <= len(all_guests) + 1:
+        #     print(f"FAILED: Room number must be between 1 and {len(all_guests) + 1}.")
+        #     return
+
+        new_room = Room(room_no = room_no_to_add, guest_no=guest_no, arrival_channel=channel)
         all_guests.insert(room_no_to_add - 1, new_room)
         if guest_no > self.__last_guest_no:
             self.__last_guest_no = guest_no
-        for i, guest_room in enumerate(all_guests):
-            guest_room.set_room_no(i + 1)
+
+        # for i, guest_room in enumerate(all_guests):
+        #     guest_room.set_room_no(i + 1)
         self.__room_list.clear()
         self.__room_list.bulk_load_rooms(all_guests)
         print(f"SUCCESS: Room added. Hotel now has {len(all_guests)} rooms.")
@@ -183,8 +188,8 @@ class Hotel:
         
         deleted_guest = all_guests.pop(mid)
         print(f"Guest #{deleted_guest.get_guest_no()} has been removed.")
-        for i, guest_room in enumerate(all_guests):
-            guest_room.set_room_no(i + 1)
+        # for i, guest_room in enumerate(all_guests):
+        #     guest_room.set_room_no(i + 1)
         self.__room_list.clear()
         self.__room_list.bulk_load_rooms(all_guests)
         print(f"SUCCESS: Room removed. Hotel now has {len(all_guests)} rooms.")

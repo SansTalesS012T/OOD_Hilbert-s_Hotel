@@ -20,6 +20,7 @@ def main():
         "Hotel Setup and Room Management",
         "Check in ",
         "Search for a Guest and Display Rooms",
+        "Rearrange room no.",
         "Export Room List to a File",
         "Display Current Memory Usage",
         "Quit"
@@ -229,16 +230,21 @@ $$ |  $$ |$$ |$$ |$$$$$$$  |\$$$$$$$\ $$ |       \$$$$  |$$$$$$$  |      $$ |  $
                     case 3:
                         print("Exiting program.")
                         continue
-
-
+            
             case 4:
+                print("--- Rearranging all room in hotel ---")
+                start_time = time.perf_counter()
+                hotel.rearrange()
+                end_time = time.perf_counter()
+
+            case 5:
                 print("--- Export to File ---")
                 filename = input("Enter filename to save as (e.g., hotel_export.csv): ")
                 start_time = time.perf_counter()
                 hotel.export_to_file(filename)
                 end_time = time.perf_counter()
             
-            case 5:
+            case 6:
                 print("--- Memory Usage ---")
                 start_time = time.perf_counter()
                 memory = get_process_memory()
@@ -255,7 +261,7 @@ $$ |  $$ |$$ |$$ |$$$$$$$  |\$$$$$$$\ $$ |       \$$$$  |$$$$$$$  |      $$ |  $
                 else:
                     print(f"Could not retrieve memory usage: {memory}")
 
-            case 6:
+            case 7:
                 print("Exiting program.")
                 return
 
