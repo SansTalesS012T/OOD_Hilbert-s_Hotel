@@ -164,22 +164,20 @@ class Hotel:
 
     def manual_delete_room(self, room_no_to_delete: int):
         all_guests = self.__room_list.get_all_rooms()
-        # if not 1 <= room_no_to_delete <= len(all_guests):
-        #     print(f"FAILED: Room #{room_no_to_delete} does not exist.")
-        #     return
+
         left, right = 0, len(all_guests) - 1
         mid = None
         while(left <= right):
             mid = (left + right) // 2
             room_no = all_guests[mid].get_room_no()
-            print(f"mid, no: {mid}, {room_no}")
             if(room_no_to_delete < room_no):
                 right = mid - 1
             elif(room_no_to_delete > room_no):
                 left = mid + 1
             else:
                 break
-        if(room_no != room_no_to_delete):
+
+        if(mid == None or room_no != room_no_to_delete):
             print(f"FAILED: Room #{room_no_to_delete} does not exist.")
             return 
         
