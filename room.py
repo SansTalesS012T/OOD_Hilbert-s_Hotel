@@ -23,7 +23,7 @@ class Room:
         return f"Room(No: {self.__room_no}, Guest: {self.__guest_no}, From: {self.__arrival_channel})"
 
 class RoomList:
-    def __init__(self, order=4):
+    def __init__(self, order=16):
         self.__bptree = BPT.BPTree(order)
 
     def get_all_rooms(self) -> list:
