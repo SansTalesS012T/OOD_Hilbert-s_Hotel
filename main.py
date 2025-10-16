@@ -173,11 +173,14 @@ $$ |  $$ |$$ |$$ |$$$$$$$  |\$$$$$$$\ $$ |       \$$$$  |$$$$$$$  |      $$ |  $
                         print("Simulates infinite buses by assigning each bus and guest to unique rooms.")
                         try:
                             num_buses = int(input("Enter the number of infinite buses to SIMULATE: "))
-                            num_guests_per_bus = int(input("Enter the number of guests per bus to SIMULATE: "))
+                            # num_guests_per_bus = int(input("Enter the number of guests per bus to SIMULATE: "))
+                            num_guests_of_each_bus = []
+                            for i in range(num_buses):
+                                num_guests_of_each_bus.append(int(input(f"Enter amount of guest in bus {i + 1}: ")))
                             prefix = input("Enter a channel name prefix (e.g., 'InfBus'): ")
                             start_time = time.perf_counter()
                             hotel.check_in_infinite_buses_with_infinite_guests(
-                                num_buses, num_guests_per_bus, prefix
+                                num_buses, num_guests_of_each_bus, prefix
                             )
                             end_time = time.perf_counter()
                         except ValueError:

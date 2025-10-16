@@ -96,18 +96,18 @@ class Hotel:
         self.__room_list.bulk_load_rooms(all_guests)
         print(f"SUCCESS: The hotel now accommodates all {len(all_guests)} guests.")
 
-    def check_in_infinite_buses_with_infinite_guests(self, num_buses_to_simulate: int, num_guests_per_bus_to_simulate: int, channel_prefix: str):
+    def check_in_infinite_buses_with_infinite_guests(self, num_buses_to_simulate: int, num_guests_of_each_bus: int, channel_prefix: str):
         """
         Handles infinite buses of infinite guests using the prime power method.
         """
-        print(f"\n>> Simulating {num_buses_to_simulate} infinite buses with {num_guests_per_bus_to_simulate} guests each...")
+        print(f"\n>> Simulating {num_buses_to_simulate} infinite buses...")
         print(">> Using the Prime Power shifting method.")
 
         # Step 1: Get and relocate existing guests to rooms 2^n
         existing_guests = self.__room_list.get_all_rooms()
         print(f"Relocating {len(existing_guests)} existing guests to rooms of the form 2^n...")
-        for guest_room in existing_guests:
-            guest_room.set_room_no(2 ** guest_room.get_room_no())
+        for index, guest_room in enumerate(existing_guests):
+            guest_room.set_room_no(2 ** index)
         
         # Step 2: Create the simulated new guests
         new_guests = []
@@ -120,7 +120,7 @@ class Hotel:
             channel_name = f"{channel_prefix}_{bus_idx + 1}"
             print(f"  - Assigning guests from Bus #{bus_idx + 1} to rooms with base prime {prime_base}...")
 
-            for guest_idx in range(1, num_guests_per_bus_to_simulate + 1):
+            for guest_idx in range(1, num_guests_of_each_bus[bus_idx] + 1):
                 guest_id_counter += 1
                 new_room_no = prime_base ** guest_idx
                 new_guests.append(Room(room_no=new_room_no, guest_no=guest_id_counter, arrival_channel=channel_name))
@@ -164,10 +164,26 @@ class Hotel:
 
     def manual_delete_room(self, room_no_to_delete: int):
         all_guests = self.__room_list.get_all_rooms()
-        if not 1 <= room_no_to_delete <= len(all_guests):
+        # if not 1 <= room_no_to_delete <= len(all_guests):
+        #     print(f"FAILED: Room #{room_no_to_delete} does not exist.")
+        #     return
+        left, right = 0, len(all_guests) - 1
+        mid = None
+        while(left <= right):
+            mid = (left + right) // 2
+            room_no = all_guests[mid].get_room_no()
+            print(f"mid, no: {mid}, {room_no}")
+            if(room_no_to_delete < room_no):
+                right = mid - 1
+            elif(room_no_to_delete > room_no):
+                left = mid + 1
+            else:
+                break
+        if(room_no != room_no_to_delete):
             print(f"FAILED: Room #{room_no_to_delete} does not exist.")
-            return
-        deleted_guest = all_guests.pop(room_no_to_delete - 1)
+            return 
+        
+        deleted_guest = all_guests.pop(mid)
         print(f"Guest #{deleted_guest.get_guest_no()} has been removed.")
         for i, guest_room in enumerate(all_guests):
             guest_room.set_room_no(i + 1)
